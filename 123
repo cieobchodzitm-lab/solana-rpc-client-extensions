@@ -1,0 +1,13 @@
+python -m http.server 3000 --bind localhost
+-H "x-api-key: $ANTHROPIC_API_KEY"          # Authentication
+-H "anthropic-version: 2023-06-01"          # API version
+-H "anthropic-beta: context-1m-2025-08-07"  # Extended context
+-H "content-type: application/json"          # Content type
+
+{
+  "model": "claude-4.6-sonnet",              # Model identifier
+  "max_tokens": 2048,                        # Max response length
+  "messages": [                               # Conversation history
+    {"role": "user", "content": "..."}
+  ]
+}
