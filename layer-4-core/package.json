@@ -1,0 +1,21 @@
+{
+  "name": "layer-4-core",
+  "version": "1.0.0",
+  "description": "Layer 4 Core – Cognitive Security Engine by Angel Guardian Technologies",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "analyze": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.52.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "tsx": "^4.19.2",
+    "typescript": "^5.5.3"
+  }
+}
