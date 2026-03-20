@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Layer 4 Core — Cognitive Security Engine</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0c10;
+      --surface: #111318;
+      --border: #1e2330;
+      --accent: #3b82f6;
+      --accent-dim: #1d3557;
+      --text: #e2e8f0;
+      --text-muted: #64748b;
+      --red: #ef4444;
+      --orange: #f97316;
+      --yellow: #eab308;
+      --green: #22c55e;
+      --minimal: #22c55e;
+      --low: #84cc16;
+      --moderate: #eab308;
+      --high: #f97316;
+      --critical: #ef4444;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    header .logo {
+      width: 36px; height: 36px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 700; color: #fff;
+      flex-shrink: 0;
+    }
+
+    header h1 { font-size: 1.1rem; font-weight: 600; letter-spacing: .03em; }
+    header p  { font-size: .75rem; color: var(--text-muted); margin-top: 2px; }
+
+    main {
+      flex: 1;
+      max-width: 860px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* ── Input card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .card label {
+      display: block;
+      font-size: .8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-muted);
+      margin-bottom: .6rem;
+    }
+
+    textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: .95rem;
+      line-height: 1.6;
+      padding: .9rem 1rem;
+      resize: vertical;
+      min-height: 130px;
+      transition: border-color .2s;
+    }
+    textarea:focus { outline: none; border-color: var(--accent); }
+    textarea::placeholder { color: var(--text-muted); }
+
+    .actions { display: flex; justify-content: flex-end; margin-top: .9rem; }
+
+    button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: .65rem 1.5rem;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex; align-items: center; gap: .5rem;
+      transition: opacity .2s;
+    }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    button:not(:disabled):hover { opacity: .88; }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+    .loading .spinner { display: block; }
+    .loading .btn-label { display: none; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Results ── */
+    #results { display: none; }
+    #results.visible { display: flex; flex-direction: column; gap: 1rem; }
+
+    /* Safety alert */
+    .safety-card {
+      background: #1c0a0a;
+      border: 1px solid var(--red);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+    }
+    .safety-card h2 { color: var(--red); font-size: 1rem; margin-bottom: .5rem; }
+    .safety-card p  { font-size: .9rem; line-height: 1.6; }
+
+    /* Threat meter */
+    .threat-row {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .score-badge {
+      flex-shrink: 0;
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      border: 3px solid;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      font-size: 1.4rem; font-weight: 700;
+      line-height: 1;
+    }
+    .score-badge span { font-size: .65rem; font-weight: 500; margin-top: 2px; }
+
+    .score-minimal  { border-color: var(--minimal);  color: var(--minimal);  }
+    .score-low      { border-color: var(--low);       color: var(--low);      }
+    .score-moderate { border-color: var(--moderate);  color: var(--moderate); }
+    .score-high     { border-color: var(--high);      color: var(--high);     }
+    .score-critical { border-color: var(--critical);  color: var(--critical); }
+
+    .threat-meta { flex: 1; min-width: 160px; }
+    .threat-meta .level { font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+    .threat-meta .intent { font-size: .85rem; color: var(--text-muted); margin-top: .25rem; }
+
+    .meter-wrap { flex: 1; min-width: 200px; }
+    .meter-track {
+      height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;
+    }
+    .meter-fill { height: 100%; border-radius: 4px; transition: width .6s ease; }
+
+    /* Patterns */
+    .patterns { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .tag {
+      background: var(--accent-dim);
+      border: 1px solid var(--accent);
+      border-radius: 20px;
+      padding: .25rem .75rem;
+      font-size: .78rem;
+      font-weight: 500;
+      color: #93c5fd;
+    }
+    .no-patterns { color: var(--text-muted); font-size: .85rem; font-style: italic; }
+
+    /* Text sections */
+    .section-label {
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text-muted);
+      margin-bottom: .5rem;
+    }
+
+    .section-body { font-size: .9rem; line-height: 1.7; color: var(--text); }
+
+    .stoic-body {
+      font-size: .9rem;
+      line-height: 1.7;
+      font-style: italic;
+      color: #93c5fd;
+      border-left: 3px solid var(--accent);
+      padding-left: .9rem;
+    }
+
+    .action-body {
+      font-size: .9rem;
+      line-height: 1.7;
+      background: var(--bg);
+      border-radius: 8px;
+      padding: .9rem 1rem;
+      border: 1px solid var(--border);
+    }
+
+    /* Error */
+    .error-msg {
+      color: var(--red);
+      font-size: .85rem;
+      margin-top: .5rem;
+      display: none;
+    }
+    .error-msg.visible { display: block; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">L4</div>
+  <div>
+    <h1>Layer 4 Core</h1>
+    <p>Cognitive Security Engine · Angel Guardian Technologies</p>
+  </div>
+</header>
+
+<main>
+  <!-- Input -->
+  <div class="card">
+    <label for="msg">Message to Analyze</label>
+    <textarea id="msg" placeholder="Paste the message you received and want to analyze for manipulation patterns…"></textarea>
+    <p id="error" class="error-msg"></p>
+    <div class="actions">
+      <button id="analyzeBtn" onclick="analyze()">
+        <div class="spinner"></div>
+        <span class="btn-label">Analyze</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="results">
+
+    <!-- Safety alert (shown only on crisis) -->
+    <div id="safetyCard" class="safety-card" style="display:none">
+      <h2>⚠ Safety Alert</h2>
+      <p id="safetyText"></p>
+    </div>
+
+    <!-- Threat score -->
+    <div id="threatCard" class="card">
+      <div class="threat-row">
+        <div id="scoreBadge" class="score-badge">
+          <span id="scoreNum">—</span>
+          <span>/100</span>
+        </div>
+        <div class="threat-meta">
+          <div id="levelLabel" class="level">—</div>
+          <div id="intentLabel" class="intent">—</div>
+        </div>
+        <div class="meter-wrap">
+          <div class="section-label">Threat Level</div>
+          <div class="meter-track">
+            <div id="meterFill" class="meter-fill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detected patterns -->
+    <div id="patternsCard" class="card">
+      <div class="section-label">Detected Patterns</div>
+      <div id="patternTags" class="patterns"></div>
+    </div>
+
+    <!-- Analysis summary -->
+    <div id="summaryCard" class="card">
+      <div class="section-label">Analysis</div>
+      <div id="summaryText" class="section-body"></div>
+    </div>
+
+    <!-- Stoic nudge -->
+    <div id="stoicCard" class="card">
+      <div class="section-label">Stoic Shield</div>
+      <div id="stoicText" class="stoic-body"></div>
+    </div>
+
+    <!-- Suggested action -->
+    <div id="actionCard" class="card">
+      <div class="section-label">Recommended Action</div>
+      <div id="actionText" class="action-body"></div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  const SCORE_CONFIG = [
+    { max: 20,  cls: 'score-minimal',  label: 'Minimal',  color: '#22c55e' },
+    { max: 40,  cls: 'score-low',      label: 'Low',      color: '#84cc16' },
+    { max: 60,  cls: 'score-moderate', label: 'Moderate', color: '#eab308' },
+    { max: 80,  cls: 'score-high',     label: 'High',     color: '#f97316' },
+    { max: 100, cls: 'score-critical', label: 'Critical', color: '#ef4444' },
+  ];
+
+  function getConfig(score) {
+    return SCORE_CONFIG.find(c => score <= c.max) || SCORE_CONFIG[SCORE_CONFIG.length - 1];
+  }
+
+  async function analyze() {
+    const btn   = document.getElementById('analyzeBtn');
+    const msg   = document.getElementById('msg').value.trim();
+    const error = document.getElementById('error');
+
+    error.classList.remove('visible');
+
+    if (!msg) {
+      error.textContent = 'Please enter a message to analyze.';
+      error.classList.add('visible');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.classList.add('loading');
+    document.getElementById('results').classList.remove('visible');
+
+    try {
+      const res = await fetch('/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: msg }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || `HTTP ${res.status}`);
+      }
+
+      renderResult(data);
+    } catch (err) {
+      error.textContent = 'Analysis failed: ' + (err.message || 'Unknown error');
+      error.classList.add('visible');
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    }
+  }
+
+  function renderResult(data) {
+    const results = document.getElementById('results');
+
+    // Safety alert
+    if (data.safety_alert) {
+      document.getElementById('safetyCard').style.display  = '';
+      document.getElementById('safetyText').textContent    = data.message;
+      document.getElementById('threatCard').style.display  = 'none';
+      document.getElementById('patternsCard').style.display= 'none';
+      document.getElementById('summaryCard').style.display = 'none';
+      document.getElementById('stoicCard').style.display   = 'none';
+      document.getElementById('actionCard').style.display  = 'none';
+      results.classList.add('visible');
+      results.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+
+    document.getElementById('safetyCard').style.display   = 'none';
+    document.getElementById('threatCard').style.display   = '';
+    document.getElementById('patternsCard').style.display = '';
+    document.getElementById('summaryCard').style.display  = '';
+    document.getElementById('stoicCard').style.display    = '';
+    document.getElementById('actionCard').style.display   = '';
+
+    const cfg = getConfig(data.threat_score);
+
+    // Score badge
+    const badge = document.getElementById('scoreBadge');
+    badge.className = 'score-badge ' + cfg.cls;
+    document.getElementById('scoreNum').textContent = data.threat_score;
+
+    // Level + intent
+    document.getElementById('levelLabel').textContent  = cfg.label;
+    document.getElementById('levelLabel').style.color  = cfg.color;
+    document.getElementById('intentLabel').textContent = data.primary_intent;
+
+    // Meter
+    const fill = document.getElementById('meterFill');
+    fill.style.width      = data.threat_score + '%';
+    fill.style.background = cfg.color;
+
+    // Patterns
+    const tags = document.getElementById('patternTags');
+    if (data.detected_patterns && data.detected_patterns.length > 0) {
+      tags.innerHTML = data.detected_patterns
+        .map(p => `<span class="tag">${p}</span>`).join('');
+    } else {
+      tags.innerHTML = '<span class="no-patterns">No manipulation patterns detected</span>';
+    }
+
+    // Text blocks
+    document.getElementById('summaryText').textContent = data.analysis_summary;
+    document.getElementById('stoicText').textContent   = data.stoic_nudge;
+    document.getElementById('actionText').textContent  = data.suggested_action;
+
+    results.classList.add('visible');
+    results.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Allow Ctrl+Enter to submit
+  document.getElementById('msg').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) analyze();
+  });
+</script>
+</body>
+</html>
