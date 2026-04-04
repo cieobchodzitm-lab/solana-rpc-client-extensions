@@ -48,6 +48,13 @@ function printResult(result: AnalysisResult | string): void {
   console.log("\n  RECOMMENDED ACTION:");
   console.log(wordWrap(result.suggested_action, 56, "  "));
 
+  if (result.code_execution_output && result.code_execution_output.length > 0) {
+    console.log("\n  CODE ANALYSIS OUTPUT:");
+    for (const line of result.code_execution_output) {
+      console.log("  " + line.split("\n").join("\n  "));
+    }
+  }
+
   console.log("\n" + "═".repeat(60) + "\n");
 
   // Also output raw JSON for programmatic consumers

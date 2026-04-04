@@ -5,6 +5,8 @@ export interface AnalysisResult {
   analysis_summary: string;
   stoic_nudge: string;
   suggested_action: string;
+  /** Stdout lines produced by code execution steps, if any were run. */
+  code_execution_output?: string[];
 }
 
 export interface AnalysisOptions {

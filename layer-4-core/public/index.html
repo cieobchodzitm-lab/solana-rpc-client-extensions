@@ -223,6 +223,20 @@
       border: 1px solid var(--border);
     }
 
+    /* Code execution output */
+    .code-output {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: .8rem 1rem;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: .8rem;
+      color: #7ee787;
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.5;
+    }
+
     /* Error */
     .error-msg {
       color: var(--red);
@@ -310,6 +324,12 @@
       <div id="actionText" class="action-body"></div>
     </div>
 
+    <!-- Code execution output (only shown when model ran code) -->
+    <div id="codeCard" class="card" style="display:none">
+      <div class="section-label">Code Analysis Output</div>
+      <pre id="codeOutput" class="code-output"></pre>
+    </div>
+
   </div>
 </main>
 
@@ -378,6 +398,7 @@
       document.getElementById('summaryCard').style.display = 'none';
       document.getElementById('stoicCard').style.display   = 'none';
       document.getElementById('actionCard').style.display  = 'none';
+      document.getElementById('codeCard').style.display    = 'none';
       results.classList.add('visible');
       results.scrollIntoView({ behavior: 'smooth' });
       return;
@@ -420,6 +441,14 @@
     document.getElementById('summaryText').textContent = data.analysis_summary;
     document.getElementById('stoicText').textContent   = data.stoic_nudge;
     document.getElementById('actionText').textContent  = data.suggested_action;
+
+    // Code execution output
+    if (data.code_execution_output && data.code_execution_output.length > 0) {
+      document.getElementById('codeCard').style.display   = '';
+      document.getElementById('codeOutput').textContent   = data.code_execution_output.join('\n---\n');
+    } else {
+      document.getElementById('codeCard').style.display   = 'none';
+    }
 
     results.classList.add('visible');
     results.scrollIntoView({ behavior: 'smooth' });
