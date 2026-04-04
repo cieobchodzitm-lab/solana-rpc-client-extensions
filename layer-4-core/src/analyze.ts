@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { SYSTEM_PROMPT } from "./system-prompt.js";
-import type { AnalysisResult } from "./types.js";
+import type { AnalysisResult, CodeExecutionStep } from "./types.js";
 
 const client = new Anthropic();
 
@@ -22,16 +22,95 @@ function checkPhysicalSafety(message: string): boolean {
   );
 }
 
-// Latest code execution tool — supports REPL state persistence (gVisor checkpoint).
-// Cast to any because SDK 0.52.0 types predate the _20260120 version string.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CODE_EXECUTION_TOOL: any = {
+// Latest code execution tool — supports REPL state persistence via gVisor checkpoint.
+const CODE_EXECUTION_TOOL: Anthropic.Messages.CodeExecutionTool20260120 = {
   type: "code_execution_20260120",
   name: "code_execution",
 };
 
 // Maximum number of pause_turn continuations before giving up.
 const MAX_CONTINUATIONS = 5;
+
+// Set DEBUG_BLOCKS=1 to log raw content block shapes for every API response.
+const DEBUG = process.env["DEBUG_BLOCKS"] === "1";
+
+function debugLog(label: string, data: unknown): void {
+  if (DEBUG) {
+    console.error(`\n[Layer4 DEBUG] ${label}:`);
+    console.error(JSON.stringify(data, null, 2));
+  }
+}
+
+/** Process a single bash_code_execution_tool_result block into a CodeExecutionStep. */
+function processBashResult(
+  block: Anthropic.Messages.BashCodeExecutionToolResultBlock,
+): CodeExecutionStep {
+  debugLog("bash_code_execution_tool_result", block);
+
+  const content = block.content;
+
+  if (content.type === "bash_code_execution_tool_result_error") {
+    return {
+      type: "bash",
+      error_code: content.error_code,
+      stdout: "",
+      stderr: "",
+      return_code: -1,
+    };
+  }
+
+  // content.type === "bash_code_execution_result"
+  return {
+    type: "bash",
+    stdout: content.stdout,
+    stderr: content.stderr,
+    return_code: content.return_code,
+    output_file_ids: content.content
+      .filter(
+        (o): o is Anthropic.Messages.BashCodeExecutionOutputBlock =>
+          o.type === "bash_code_execution_output",
+      )
+      .map((o) => o.file_id),
+  };
+}
+
+/** Process a text_editor_code_execution_tool_result block into a CodeExecutionStep. */
+function processEditorResult(
+  block: Anthropic.Messages.TextEditorCodeExecutionToolResultBlock,
+): CodeExecutionStep {
+  debugLog("text_editor_code_execution_tool_result", block);
+
+  const content = block.content;
+
+  if (content.type === "text_editor_code_execution_tool_result_error") {
+    return {
+      type: "editor",
+      error_code: content.error_code,
+      operation: "error",
+    };
+  }
+
+  switch (content.type) {
+    case "text_editor_code_execution_view_result":
+      return {
+        type: "editor",
+        operation: "view",
+        file_content: content.content,   // SDK field name is `content`, not `file_text`
+        file_type: content.file_type,
+      };
+    case "text_editor_code_execution_create_result":
+      return { type: "editor", operation: "create" };
+    case "text_editor_code_execution_str_replace_result":
+      return {
+        type: "editor",
+        operation: "str_replace",
+        old_start: content.old_start ?? undefined, // line numbers
+        new_start: content.new_start ?? undefined,
+      };
+    default:
+      return { type: "editor", operation: "unknown" };
+  }
+}
 
 export async function analyzeMessage(
   message: string,
@@ -51,20 +130,18 @@ export async function analyzeMessage(
     `urgency-word detection, sentiment scoring) to support your evaluation.\n\n` +
     `"""\n${message}\n"""`;
 
-  // Messages array grows when pause_turn continuations are needed.
   let messages: Anthropic.MessageParam[] = [
     { role: "user", content: userContent },
   ];
 
-  const codeExecutionOutputs: string[] = [];
+  const steps: CodeExecutionStep[] = [];
   let finalJsonText: string | null = null;
 
   for (let attempt = 0; attempt < MAX_CONTINUATIONS; attempt++) {
     const stream = client.messages.stream({
       model: "claude-opus-4-6",
       max_tokens: 8192,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      thinking: { type: "adaptive" } as any,
+      thinking: { type: "adaptive" },
       tools: [CODE_EXECUTION_TOOL],
       system: SYSTEM_PROMPT,
       messages,
@@ -72,29 +149,30 @@ export async function analyzeMessage(
 
     const response = await stream.finalMessage();
 
-    // Collect stdout from bash_code_execution_tool_result blocks.
-    // The type string is not in SDK 0.52.0's union so we cast via unknown.
-    for (const block of response.content as unknown[]) {
-      const b = block as { type: string; content?: { stdout?: string } };
-      if (
-        b.type === "bash_code_execution_tool_result" &&
-        b.content?.stdout?.trim()
-      ) {
-        codeExecutionOutputs.push(b.content.stdout.trim());
+    debugLog(`response turn ${attempt + 1} — stop_reason=${response.stop_reason}`, {
+      block_types: response.content.map((b) => b.type),
+    });
+
+    // ── Collect code execution results ───────────────────────────────────
+    for (const block of response.content) {
+      if (block.type === "bash_code_execution_tool_result") {
+        steps.push(processBashResult(block));
+      } else if (block.type === "text_editor_code_execution_tool_result") {
+        steps.push(processEditorResult(block));
       }
     }
 
+    // ── Handle stop reason ───────────────────────────────────────────────
     if (response.stop_reason === "end_turn") {
       // Find the LAST text block — it contains the final JSON output.
-      // (Earlier text blocks may be Claude's reasoning before running code.)
+      // Earlier text blocks may be Claude's reasoning before running code.
       const textBlocks = response.content.filter(
         (b): b is Anthropic.TextBlock => b.type === "text",
       );
 
       if (textBlocks.length === 0) {
         throw new Error(
-          "No text response received from Claude. " +
-          "Response contained: " +
+          "No text block in final response. Block types received: " +
           response.content.map((b) => b.type).join(", "),
         );
       }
@@ -104,8 +182,8 @@ export async function analyzeMessage(
     }
 
     if (response.stop_reason === "pause_turn") {
-      // Server-side tool loop hit its iteration limit — re-send to continue.
-      // Per API docs: append assistant content and re-send the original user message.
+      // Server-side tool loop hit its 10-iteration limit.
+      // Re-send original user message + assistant content to continue.
       messages = [
         { role: "user", content: userContent },
         { role: "assistant", content: response.content },
@@ -113,7 +191,7 @@ export async function analyzeMessage(
       continue;
     }
 
-    throw new Error(`Unexpected stop_reason: ${response.stop_reason}`);
+    throw new Error(`Unexpected stop_reason: "${response.stop_reason}"`);
   }
 
   if (!finalJsonText) {
@@ -128,10 +206,12 @@ export async function analyzeMessage(
     finalJsonText = fenceMatch[1];
   }
 
+  debugLog("final JSON text", finalJsonText);
+
   try {
     const result = JSON.parse(finalJsonText) as AnalysisResult;
-    if (codeExecutionOutputs.length > 0) {
-      result.code_execution_output = codeExecutionOutputs;
+    if (steps.length > 0) {
+      result.code_execution_steps = steps;
     }
     return result;
   } catch {

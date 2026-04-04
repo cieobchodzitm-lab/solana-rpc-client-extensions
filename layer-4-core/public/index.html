@@ -442,12 +442,28 @@
     document.getElementById('stoicText').textContent   = data.stoic_nudge;
     document.getElementById('actionText').textContent  = data.suggested_action;
 
-    // Code execution output
-    if (data.code_execution_output && data.code_execution_output.length > 0) {
-      document.getElementById('codeCard').style.display   = '';
-      document.getElementById('codeOutput').textContent   = data.code_execution_output.join('\n---\n');
+    // Code execution steps
+    const steps = data.code_execution_steps;
+    if (steps && steps.length > 0) {
+      document.getElementById('codeCard').style.display = '';
+      document.getElementById('codeOutput').textContent = steps.map((s, i) => {
+        const header = `── Step ${i + 1} [${s.type}] ──`;
+        if (s.type === 'bash') {
+          if (s.error_code) return `${header}\nERROR: ${s.error_code}`;
+          const parts = [`${header}  exit: ${s.return_code}`];
+          if (s.stdout) parts.push('stdout:\n' + s.stdout);
+          if (s.stderr) parts.push('stderr:\n' + s.stderr);
+          if (s.output_file_ids?.length) parts.push('files: ' + s.output_file_ids.join(', '));
+          return parts.join('\n');
+        } else {
+          const parts = [`${header}  op: ${s.operation}`];
+          if (s.error_code) parts.push('error: ' + s.error_code);
+          if (s.file_text)  parts.push(s.file_text.slice(0, 300));
+          return parts.join('\n');
+        }
+      }).join('\n\n');
     } else {
-      document.getElementById('codeCard').style.display   = 'none';
+      document.getElementById('codeCard').style.display = 'none';
     }
 
     results.classList.add('visible');

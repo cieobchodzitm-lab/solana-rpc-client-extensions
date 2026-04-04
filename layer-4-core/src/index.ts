@@ -48,10 +48,25 @@ function printResult(result: AnalysisResult | string): void {
   console.log("\n  RECOMMENDED ACTION:");
   console.log(wordWrap(result.suggested_action, 56, "  "));
 
-  if (result.code_execution_output && result.code_execution_output.length > 0) {
-    console.log("\n  CODE ANALYSIS OUTPUT:");
-    for (const line of result.code_execution_output) {
-      console.log("  " + line.split("\n").join("\n  "));
+  if (result.code_execution_steps && result.code_execution_steps.length > 0) {
+    console.log("\n  CODE EXECUTION STEPS:");
+    for (const [i, step] of result.code_execution_steps.entries()) {
+      console.log(`\n  ── Step ${i + 1} [${step.type}] ──`);
+      if (step.type === "bash") {
+        if (step.error_code) {
+          console.log(`  ERROR: ${step.error_code}`);
+        } else {
+          console.log(`  exit: ${step.return_code}`);
+          if (step.stdout) console.log("  stdout:\n  " + step.stdout.split("\n").join("\n  "));
+          if (step.stderr) console.log("  stderr:\n  " + step.stderr.split("\n").join("\n  "));
+          if (step.output_file_ids?.length)
+            console.log("  files:", step.output_file_ids.join(", "));
+        }
+      } else {
+        console.log(`  operation: ${step.operation}`);
+        if (step.error_code)   console.log(`  error: ${step.error_code}`);
+        if (step.file_content) console.log("  content:\n  " + step.file_content.slice(0, 200));
+      }
     }
   }
 
