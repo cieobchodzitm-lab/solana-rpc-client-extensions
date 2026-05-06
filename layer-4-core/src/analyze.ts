@@ -137,19 +137,40 @@ export async function analyzeMessage(
   const steps: CodeExecutionStep[] = [];
   let finalJsonText: string | null = null;
 
+  // System prompt with prompt caching — the large, stable prefix is cached
+  // across requests, cutting input token cost on cache hits.
+  const cachedSystem: Anthropic.Messages.TextBlockParam[] = [
+    {
+      type: "text",
+      text: SYSTEM_PROMPT,
+      cache_control: { type: "ephemeral" },
+    },
+  ];
+
   for (let attempt = 0; attempt < MAX_CONTINUATIONS; attempt++) {
     const stream = client.messages.stream({
-      model: "claude-opus-4-6",
+      model: "claude-opus-4-7",
       max_tokens: 8192,
       thinking: { type: "adaptive" },
       tools: [CODE_EXECUTION_TOOL],
-      system: SYSTEM_PROMPT,
+      system: cachedSystem,
       messages,
     });
 
     const response = await stream.finalMessage();
 
-    debugLog(`response turn ${attempt + 1} — stop_reason=${response.stop_reason}`, {
+    // Log cache hit/miss stats so operators can verify caching is working.
+    const u = response.usage as unknown as Record<string, number>;
+    debugLog(
+      `response turn ${attempt + 1} — stop_reason=${response.stop_reason} | usage`,
+      {
+        input_tokens: u["input_tokens"],
+        cache_creation_input_tokens: u["cache_creation_input_tokens"] ?? 0,
+        cache_read_input_tokens: u["cache_read_input_tokens"] ?? 0,
+        output_tokens: u["output_tokens"],
+      },
+    );
+    debugLog(`response turn ${attempt + 1} — block types`, {
       block_types: response.content.map((b) => b.type),
     });
 
