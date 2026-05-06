@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: layer-4-core
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: starter
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false          # set in Render dashboard
+      - key: LAYER4_API_KEY
+        sync: false
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3000"
+    healthCheckPath: /health
+    autoDeploy: true
