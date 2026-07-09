@@ -1,0 +1,162 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# stoic-matrix — docker-compose.yml
+# Angel Guardian Technologies / cieobchodzitm-lab
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Services:
+#   hf-space    → L7 CNOTA Dashboard (port 7860) — produkcja/dev
+#   hsa-agent   → jednorazowy audit (CLI, nie daemon)
+#   postgres    → Supabase-compatible local DB (port 5432)
+#   otel        → OpenTelemetry collector (OTLP traces/metrics/logs)
+#
+# Usage:
+#   docker compose up hf-space postgres          # dev stack
+#   docker compose run --rm hsa-agent \
+#     --agent-id local-001 --action "test commit" # jednorazowy audit
+#   docker compose --profile monitoring up        # z OTel
+# ═══════════════════════════════════════════════════════════════════════════════
+
+services:
+
+  # ─── HF Space / L7 CNOTA Dashboard ─────────────────────────────────────────
+  hf-space:
+    build:
+      context: .
+      target: hf-space
+      args:
+        UID: "1000"
+        GID: "1000"
+    image: stoic-matrix:hf-space
+    container_name: l7-cnota-dashboard
+    ports:
+      - "7860:7860"
+    environment:
+      # Secrets — ustaw w .env (nigdy nie commituj!)
+      GEMINI_API_KEY: ${GEMINI_API_KEY:?GEMINI_API_KEY required}
+      AGENTOPS_API_KEY: ${AGENTOPS_API_KEY:-}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://stoic:stoic@postgres:5432/stoicdb}
+      PORT: "7860"
+      HOST: "0.0.0.0"
+      # OpenTelemetry (opcjonalny)
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_ENDPOINT:-http://otel-collector:4317}
+      OTEL_SERVICE_NAME: "l7-cnota-dashboard"
+    volumes:
+      - hsa_assessments:/app/hsa_assessments
+      - exports:/app/exports
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7860/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - stoic-net
+
+  # ─── HSA-001 Agent (CLI, run once) ──────────────────────────────────────────
+  hsa-agent:
+    build:
+      context: .
+      target: hsa-agent
+      args:
+        UID: "1000"
+    image: stoic-matrix:hsa-agent
+    container_name: hsa-001
+    environment:
+      GEMINI_API_KEY: ${GEMINI_API_KEY:?GEMINI_API_KEY required}
+      AGENTOPS_API_KEY: ${AGENTOPS_API_KEY:-}
+    volumes:
+      # Shared assessments dir — delta działa między uruchomieniami
+      - hsa_assessments:/app/hsa_assessments
+    # Domyślnie --help; nadpisz przez: docker compose run --rm hsa-agent --agent-id ...
+    command: ["--help"]
+    networks:
+      - stoic-net
+    profiles:
+      - audit
+
+  # ─── PostgreSQL (Supabase-compatible) ───────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: stoic-postgres
+    environment:
+      POSTGRES_USER: stoic
+      POSTGRES_PASSWORD: stoic
+      POSTGRES_DB: stoicdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stoic -d stoicdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - stoic-net
+
+  # ─── OpenTelemetry Collector ─────────────────────────────────────────────────
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.100.0
+    container_name: otel-collector
+    command: ["--config=/etc/otel/config.yaml"]
+    volumes:
+      - ./otel/config.yaml:/etc/otel/config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "8888:8888"   # Prometheus metrics (self)
+    depends_on:
+      - hf-space
+    networks:
+      - stoic-net
+    profiles:
+      - monitoring
+
+  # ─── CI Runner (self-hosted GitLab runner) ───────────────────────────────────
+  ci-runner:
+    build:
+      context: .
+      target: ci-runner
+    image: stoic-matrix:ci-runner
+    container_name: stoic-ci-runner
+    environment:
+      CI_SERVER_URL: ${GITLAB_URL:-https://gitlab.com}
+      REGISTRATION_TOKEN: ${GITLAB_RUNNER_TOKEN:-}
+      RUNNER_EXECUTOR: docker
+      DOCKER_IMAGE: stoic-matrix:hsa-agent
+      # RF-004 baked into image, but explicit here too
+      CARGO_INCREMENTAL: "0"
+      FF_USE_FASTZIP: "true"
+      # sccache GCS (RF-002)
+      SCCACHE_GCS_BUCKET: ${SCCACHE_GCS_BUCKET:-}
+      SCCACHE_GCS_CREDENTIALS: ${SCCACHE_GCS_CREDENTIALS:-}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - runner_config:/etc/gitlab-runner
+    restart: unless-stopped
+    networks:
+      - stoic-net
+    profiles:
+      - runner
+
+# ─── Volumes ──────────────────────────────────────────────────────────────────
+volumes:
+  hsa_assessments:
+    driver: local
+  exports:
+    driver: local
+  postgres_data:
+    driver: local
+  runner_config:
+    driver: local
+
+# ─── Networks ─────────────────────────────────────────────────────────────────
+networks:
+  stoic-net:
+    driver: bridge

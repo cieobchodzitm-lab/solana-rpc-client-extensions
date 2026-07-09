@@ -1,0 +1,73 @@
+{
+  "name": "Stoic Matrix — Logos [Oracle]",
+  "symbol": "SMAFBN",
+  "description": "Layer of Divine Reason — Sacred Flame symbolizing the highest system intelligence. Logos is the transcendence layer: AI scoring, Virtue Passport, collective wisdom. | Oracle — golden medallion with precious gem inlays. Vision and foresight. | Stoic Matrix Collection — Amor Fati Bene Nati.",
+  "seller_fee_basis_points": 500,
+  "image": "https://arweave.net/<UPLOAD_HASH>/nft-logos-oracle.png",
+  "external_url": "https://stoicmatrix.io",
+  "attributes": [
+    {
+      "trait_type": "Layer",
+      "value": "Logos"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Oracle"
+    },
+    {
+      "trait_type": "Rank",
+      "value": 3
+    },
+    {
+      "trait_type": "Material",
+      "value": "Złoto z inkrustacjami / Gold with Gem Inlays"
+    },
+    {
+      "trait_type": "Symbol",
+      "value": "Święty Płomień / Sacred Flame"
+    },
+    {
+      "trait_type": "Element",
+      "value": "Ogień / Fire"
+    },
+    {
+      "trait_type": "Matrix Layers",
+      "value": "L7"
+    },
+    {
+      "trait_type": "CNOTA Bonus",
+      "value": 750
+    },
+    {
+      "trait_type": "Governance Weight",
+      "value": 2.5
+    },
+    {
+      "trait_type": "Max Supply",
+      "value": 375
+    },
+    {
+      "trait_type": "Collection",
+      "value": "Amor Fati Bene Nati"
+    }
+  ],
+  "properties": {
+    "files": [
+      {
+        "uri": "https://arweave.net/<UPLOAD_HASH>/nft-logos-oracle.png",
+        "type": "image/png"
+      }
+    ],
+    "category": "image",
+    "creators": [
+      {
+        "address": "STOIC_MATRIX_CREATOR_WALLET",
+        "share": 100
+      }
+    ]
+  },
+  "collection": {
+    "name": "Stoic Matrix — Amor Fati Bene Nati",
+    "family": "Stoic Matrix"
+  }
+}

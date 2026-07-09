@@ -1,0 +1,73 @@
+{
+  "name": "Stoic Matrix — Physis [Sage]",
+  "symbol": "SMAFBN",
+  "description": "Layer of Nature — Tree of Life symbolizing the fundamental physical layer of the Stoic Matrix ecosystem. Physis represents the system roots: infrastructure, data, digital matter. | Stoic Sage — polished silver with subtle engravings. Knowledge and experience. | Stoic Matrix Collection — Amor Fati Bene Nati.",
+  "seller_fee_basis_points": 500,
+  "image": "https://arweave.net/<UPLOAD_HASH>/nft-physis-sage.png",
+  "external_url": "https://stoicmatrix.io",
+  "attributes": [
+    {
+      "trait_type": "Layer",
+      "value": "Physis"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Sage"
+    },
+    {
+      "trait_type": "Rank",
+      "value": 2
+    },
+    {
+      "trait_type": "Material",
+      "value": "Polerowane Srebro / Polished Silver"
+    },
+    {
+      "trait_type": "Symbol",
+      "value": "Drzewo Życia / Tree of Life"
+    },
+    {
+      "trait_type": "Element",
+      "value": "Ziemia / Earth"
+    },
+    {
+      "trait_type": "Matrix Layers",
+      "value": "L1-L4"
+    },
+    {
+      "trait_type": "CNOTA Bonus",
+      "value": 300
+    },
+    {
+      "trait_type": "Governance Weight",
+      "value": 1.5
+    },
+    {
+      "trait_type": "Max Supply",
+      "value": 750
+    },
+    {
+      "trait_type": "Collection",
+      "value": "Amor Fati Bene Nati"
+    }
+  ],
+  "properties": {
+    "files": [
+      {
+        "uri": "https://arweave.net/<UPLOAD_HASH>/nft-physis-sage.png",
+        "type": "image/png"
+      }
+    ],
+    "category": "image",
+    "creators": [
+      {
+        "address": "STOIC_MATRIX_CREATOR_WALLET",
+        "share": 100
+      }
+    ]
+  },
+  "collection": {
+    "name": "Stoic Matrix — Amor Fati Bene Nati",
+    "family": "Stoic Matrix"
+  }
+}

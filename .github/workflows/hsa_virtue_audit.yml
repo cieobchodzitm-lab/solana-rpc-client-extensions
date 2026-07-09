@@ -1,0 +1,120 @@
+name: HSA-001 Virtue Audit
+
+on:
+  push:
+    branches: [main, dev]
+    paths: ['stoic-matrix/**']
+  pull_request:
+    branches: [main]
+    paths: ['stoic-matrix/**']
+
+# ── Permissions (required for PR comments in org repos) ──
+permissions:
+  pull-requests: write
+  contents: read
+
+env:
+  WORK_DIR: stoic-matrix
+  EXPORT_PATH: stoic-matrix/hsa_assessments
+  RESULT_FILE: result.json
+
+jobs:
+  hsa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install deps
+        # FIXED: usunięto pyperclip (headless CI), dodano google-genai
+        run: pip install google-genai agentops
+
+      - name: Run HSA-001
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          AGENTOPS_API_KEY: ${{ secrets.AGENTOPS_API_KEY }}
+        run: |
+          mkdir -p ${{ env.EXPORT_PATH }}
+          python ${{ env.WORK_DIR }}/hsa_agent.py \
+            --agent-id "GitHub-${GITHUB_RUN_NUMBER}" \
+            --file "${GITHUB_EVENT_PATH}" \
+            --output-json "${{ env.EXPORT_PATH }}/${{ env.RESULT_FILE }}"
+
+      # CI gate: exit code 1 → requires_human_approval=true → block merge
+      - name: Check approval gate
+        run: |
+          APPROVAL=$(python -c "
+          import json, sys
+          r = json.load(open('${{ env.EXPORT_PATH }}/${{ env.RESULT_FILE }}'))
+          print(str(r['requires_human_approval']).lower())
+          ")
+          if [ "$APPROVAL" = "true" ]; then
+            echo "⛔ HSA-001: Human approval required (low virtue score)"
+            exit 1
+          fi
+          echo "✅ HSA-001: Virtue gate passed"
+
+      - name: Upload artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hsa-result-${{ github.run_number }}
+          path: ${{ env.EXPORT_PATH }}/${{ env.RESULT_FILE }}
+          if-no-files-found: warn
+
+      - name: Comment PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const resultPath = `${{ env.EXPORT_PATH }}/${{ env.RESULT_FILE }}`;
+
+            let body;
+            try {
+              const r = JSON.parse(fs.readFileSync(resultPath, 'utf8'));
+
+              const tierEmoji = {
+                PLATINUM: '💎', GOLD: '🥇', SILVER: '🥈',
+                BRONZE: '🥉', FAILED: '❌'
+              }[r.tier] || '❓';
+
+              const deltaStr = (val, delta) => {
+                const sign = delta >= 0 ? '▲' : '▼';
+                return `${val?.toFixed(1) ?? 'N/A'} ${sign}${Math.abs(delta ?? 0).toFixed(1)}`;
+              };
+
+              body = [
+                `## 🛡️ HSA-001 Virtue Audit — Run #${{ github.run_number }}`,
+                '',
+                `| Parametr | Wartość |`,
+                `|----------|---------|`,
+                `| Tier | ${tierEmoji} \`${r.tier}\` |`,
+                `| Overall Score | **${r.overall_score}/10** |`,
+                `| Courage (Arete) | ${deltaStr(r.proposed_virtues?.courage, r.delta?.courage)} |`,
+                `| Wisdom (Logos) | ${deltaStr(r.proposed_virtues?.wisdom, r.delta?.wisdom)} |`,
+                `| Justice (Koinonia) | ${deltaStr(r.proposed_virtues?.justice, r.delta?.justice)} |`,
+                `| Temperance | ${deltaStr(r.proposed_virtues?.temperance, r.delta?.temperance)} |`,
+                `| ⛓️ Bridge Compliant | ${r.bridge_compliant ? '✅ Tak' : '❌ Nie'} |`,
+                `| 🔐 Requires Approval | ${r.requires_human_approval ? '**⚠️ TAK**' : '✅ Nie'} |`,
+                '',
+                `> 📜 *${r.stoic_feedback}*`,
+              ].join('\n');
+
+            } catch (e) {
+              body = `⚠️ **HSA-001**: Nie udało się odczytać wyniku.\n\`\`\`\n${e.message}\n\`\`\``;
+            }
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body
+            });

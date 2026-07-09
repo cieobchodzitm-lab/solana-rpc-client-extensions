@@ -1,0 +1,73 @@
+{
+  "name": "Stoic Matrix — Nomos [Trial]",
+  "symbol": "SMAFBN",
+  "description": "Layer of Law — Scales of Justice symbolizing ecosystem governance and regulation. Nomos is the layer of order: smart contracts, DAO, voting rules. | Beginning of the Stoic path — raw bronze with natural patina of time. Trial of character. | Stoic Matrix Collection — Amor Fati Bene Nati.",
+  "seller_fee_basis_points": 500,
+  "image": "https://arweave.net/<UPLOAD_HASH>/nft-nomos-trial.png",
+  "external_url": "https://stoicmatrix.io",
+  "attributes": [
+    {
+      "trait_type": "Layer",
+      "value": "Nomos"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Trial"
+    },
+    {
+      "trait_type": "Rank",
+      "value": 1
+    },
+    {
+      "trait_type": "Material",
+      "value": "Brąz patynowany / Patinated Bronze"
+    },
+    {
+      "trait_type": "Symbol",
+      "value": "Waga Sprawiedliwości / Scales of Justice"
+    },
+    {
+      "trait_type": "Element",
+      "value": "Woda / Water"
+    },
+    {
+      "trait_type": "Matrix Layers",
+      "value": "L5-L6"
+    },
+    {
+      "trait_type": "CNOTA Bonus",
+      "value": 100
+    },
+    {
+      "trait_type": "Governance Weight",
+      "value": 1.0
+    },
+    {
+      "trait_type": "Max Supply",
+      "value": 1250
+    },
+    {
+      "trait_type": "Collection",
+      "value": "Amor Fati Bene Nati"
+    }
+  ],
+  "properties": {
+    "files": [
+      {
+        "uri": "https://arweave.net/<UPLOAD_HASH>/nft-nomos-trial.png",
+        "type": "image/png"
+      }
+    ],
+    "category": "image",
+    "creators": [
+      {
+        "address": "STOIC_MATRIX_CREATOR_WALLET",
+        "share": 100
+      }
+    ]
+  },
+  "collection": {
+    "name": "Stoic Matrix — Amor Fati Bene Nati",
+    "family": "Stoic Matrix"
+  }
+}

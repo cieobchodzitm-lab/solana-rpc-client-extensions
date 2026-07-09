@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="pl" data-theme="dark">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+
+<!-- Perplexity Computer Attribution — SEO Meta Tags -->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stoic Matrix &mdash; Virtue-Based Blockchain Governance</title>
+<meta name="description" content="Stoic Matrix to 7-warstwowy system governance oparty na blockchain i AI, gdzie cnota zastępuje plutokrację. Token CNOTA, Paszport Cnoty i model głosowania Assembly.">
+<meta property="og:title" content="Stoic Matrix — Virtue-Based Blockchain Governance">
+<meta property="og:description" content="System 7-warstwowego governance oparty na stoickiej filozofii, blockchain Solana i AI. Cnota jako fundament zdecentralizowanego zarządzania.">
+<meta property="og:type" content="website">
+
+<!-- Fonts -->
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800&f[]=satoshi@300,400,500,700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="./base.css">
+<link rel="stylesheet" href="./style.css">
+
+<!-- JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Stoic Matrix",
+  "description": "Virtue-Based Blockchain Governance System — 7-layer framework mapping Stoic philosophy onto blockchain and AI for decentralized organizations.",
+  "applicationCategory": "Blockchain",
+  "operatingSystem": "Solana",
+  "creator": {
+    "@type": "SoftwareApplication",
+    "name": "Perplexity Computer",
+    "url": "https://www.perplexity.ai/computer"
+  },
+  "author": {
+    "@type": "Organization",
+    "name": "Angel Guardian Technologies"
+  }
+}
+</script>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header" id="header">
+  <div class="container header-inner">
+    <a href="#" class="logo" aria-label="Stoic Matrix home">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Stoic Matrix logo">
+        <rect x="2" y="2" width="32" height="32" rx="4" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+        <path d="M18 4L30 10V22L18 28L6 22V10L18 4Z" stroke="var(--color-primary)" stroke-width="2" fill="none"/>
+        <path d="M18 10L24 13V19L18 22L12 19V13L18 10Z" stroke="var(--color-primary)" stroke-width="1.5" fill="var(--color-primary)" fill-opacity="0.15"/>
+        <circle cx="18" cy="16" r="2.5" fill="var(--color-primary)"/>
+        <line x1="18" y1="4" x2="18" y2="10" stroke="var(--color-primary)" stroke-width="1" opacity="0.5"/>
+        <line x1="30" y1="10" x2="24" y2="13" stroke="var(--color-primary)" stroke-width="1" opacity="0.5"/>
+        <line x1="6" y1="10" x2="12" y2="13" stroke="var(--color-primary)" stroke-width="1" opacity="0.5"/>
+        <line x1="18" y1="28" x2="18" y2="22" stroke="var(--color-primary)" stroke-width="1" opacity="0.5"/>
+        <line x1="30" y1="22" x2="24" y2="19" stroke="var(--color-primary)" stroke-width="1" opacity="0.5"/>
+        <line x1="6" y1="22" x2="12" y2="19" stroke="var(--color-primary)" stroke-width="1" opacity="0.5"/>
+      </svg>
+      <span>STOIC MATRIX</span>
+    </a>
+    <nav>
+      <ul class="nav-links" role="list">
+        <li><a href="#features">Funkcje</a></li>
+        <li><a href="#layers">Architektura</a></li>
+        <li><a href="#governance">Governance</a></li>
+        <li><a href="#tech">Technologia</a></li>
+        <li><a href="#contact">Kontakt</a></li>
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <button class="theme-toggle" data-theme-toggle aria-label="Switch to light mode">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
+      <button class="mobile-menu-btn" aria-label="Open menu" id="menuBtn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav" id="mobileNav">
+  <button class="mobile-nav-close" id="mobileNavClose" aria-label="Close menu">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <a href="#features" onclick="closeMobileNav()">Funkcje</a>
+  <a href="#layers" onclick="closeMobileNav()">Architektura</a>
+  <a href="#governance" onclick="closeMobileNav()">Governance</a>
+  <a href="#tech" onclick="closeMobileNav()">Technologia</a>
+  <a href="#contact" onclick="closeMobileNav()">Kontakt</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg">
+    <img src="./assets/stoic-matrix-hero.png" alt="Stoic Matrix — geometric shield pattern representing virtue-based governance" loading="eager">
+  </div>
+  <div class="container hero-content">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      Solana Devnet &middot; Beta
+    </div>
+    <h1>Cnota zamiast plutokracji.<br><span class="highlight">Governance nowej&nbsp;ery.</span></h1>
+    <p class="lead">Stoic Matrix to 7-warstwowy system governance integrujący starożytną filozofię stoicką z blockchainem Solana i sztuczną inteligencją. Token CNOTA i Paszport Cnoty zastępują klasyczne głosowanie stake-weighted sprawiedliwym modelem opartym na cnocie.</p>
+    <div class="hero-actions">
+      <a href="#contact" class="btn btn-primary">Zostań partnerem</a>
+      <a href="#layers" class="btn btn-outline">Poznaj architekturę</a>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<section class="stats-bar">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item reveal">
+        <div class="stat-value">7</div>
+        <div class="stat-label">Warstw systemu</div>
+      </div>
+      <div class="stat-item reveal">
+        <div class="stat-value">4</div>
+        <div class="stat-label">Cnoty stoickie</div>
+      </div>
+      <div class="stat-item reveal">
+        <div class="stat-value">DAO</div>
+        <div class="stat-label">Decentralizacja</div>
+      </div>
+      <div class="stat-item reveal">
+        <div class="stat-value">AI</div>
+        <div class="stat-label">Scoring cnoty</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section-pad" id="features">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Kluczowe funkcje</span>
+      <h2 class="section-title">Dlaczego Stoic Matrix?</h2>
+      <p class="section-desc">System, w którym prawo głosu wynika z demonstrowanej cnoty i kompetencji, nie z wielkości portfela. Blockchain gwarantuje przejrzystość, AI weryfikuje postawę.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>Paszport Cnoty (NFT)</h3>
+        <p>Dynamiczny NFT rejestrujący historię cnoty uczestnika. Virtue Score, Activity Score i Token Stake tworzą profil reputacji, który podróżuje między DAO.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        </div>
+        <h3>Token CNOTA</h3>
+        <p>Token governance na blockchainie Solana. Stake CNOTA wchodzi w skład algorytmu głosowania, ale stanowi tylko 30% wagi decyzji — 50% to cnota, 20% aktywność.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h3>Assembly (Model Głosowania)</h3>
+        <p>System ważonego głosowania Marcus, gdzie głos każdego uczestnika jest ważony formułą: stake (30%) + cnota (50%) + aktywność (20%). Koniec z whale-dominacją.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        </div>
+        <h3>Sympozion</h3>
+        <p>Wspólna przestrzeń deliberacji ludzi i agentów AI. Formalny proces: propozycja, debata, głosowanie, uchwała. Scriba AI generuje protokoły i kronikę.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <h3>Meta-Jury & Slashing</h3>
+        <p>Mechanizm odwoławczy dla spornych decyzji. Meta-Jury z losowo wybranych weteranów może rewizować uchwały. Slashing za celowe naruszenia karze stake i virtue score.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <h3>AI Virtue Scoring (Layer 7)</h3>
+        <p>Warstwa AI oceniająca zachowania uczestników według czterech cnót stoickich: Mądrość, Odwaga, Sprawiedliwość, Umiarkowanie. Scoring aktualizuje Paszport Cnoty.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 LAYERS -->
+<section class="layers-section section-pad" id="layers">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Architektura</span>
+      <h2 class="section-title">7 Warstw Matrycy Stoickiej</h2>
+      <p class="section-desc">Każda warstwa odpowiada stoickiej kategorii ontologicznej i konkretnej technologii. Od codziennych narzędzi po AI-driven governance.</p>
+    </div>
+    <div class="layers-layout">
+      <div class="layers-image reveal">
+        <img src="./assets/stoic-matrix-layers.png" alt="Siedem technologicznych warstw Stoic Matrix" loading="lazy">
+      </div>
+      <div class="layers-content reveal">
+        <div class="layer-item">
+          <span class="layer-num">1-4</span>
+          <div class="layer-info">
+            <h4>Physis / Psyche &mdash; Kuźnia Duszy</h4>
+            <p>Notion, Slack, GitLab, CI/CD. Codzienne narzędzia, gdzie działania stają się metadanymi reputacji i historią zadań deweloperów.</p>
+          </div>
+        </div>
+        <div class="layer-item">
+          <span class="layer-num">5</span>
+          <div class="layer-info">
+            <h4>Physis / Nomos &mdash; Blockchain Solana</h4>
+            <p>Smart kontrakty Anchor, rejestracja mintów CNOTA, tokenizacja członkostwa i niezmiennik blockchainowy. Prawo Uniwersalne wyryte w kodzie.</p>
+          </div>
+        </div>
+        <div class="layer-item">
+          <span class="layer-num">6</span>
+          <div class="layer-info">
+            <h4>Nomos / Pneuma &mdash; DAO Governance</h4>
+            <p>Assembly, Sympozion, głosowania ważone. NFT Paszport Cnoty jako klucz członkostwa i badge governance. Epicentrism i deliberacja.</p>
+          </div>
+        </div>
+        <div class="layer-item">
+          <span class="layer-num">7</span>
+          <div class="layer-info">
+            <h4>Pneuma / Logos &mdash; AI & Scoring</h4>
+            <p>Sztuczna inteligencja jako „Cyfrowy Marcus Aureliusz" oceniający cnoty. Modele LLM, virtue scoring, klucze dostępu do zasobów AI. Logos w kodzie.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GOVERNANCE -->
+<section class="section-pad" id="governance">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Governance Model</span>
+      <h2 class="section-title">Assembly: Głosowanie Ważone Cnotą</h2>
+      <p class="section-desc">Model Marcus Assembly zastępuje klasyczne stake-weighted voting systemem, gdzie cnota, aktywność i stake razem kształtują decyzje.</p>
+    </div>
+    <div class="governance-image reveal">
+      <img src="./assets/stoic-matrix-governance.png" alt="Holograficzna izba Sympozionu — przestrzeń governance Stoic Matrix" loading="lazy">
+    </div>
+    <div class="governance-grid">
+      <div class="gov-card reveal">
+        <h3>
+          <span class="gov-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+          Paszport Cnoty
+        </h3>
+        <p>Dynamiczny NFT (Metaplex) przechowujący virtue score (0-100), activity score i historię głosowań. Metadane aktualizowane przez instrukcję update_metadata_uri. Podróżuje między DAO.</p>
+      </div>
+      <div class="gov-card reveal">
+        <h3>
+          <span class="gov-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span>
+          Role uczestników
+        </h3>
+        <p>Patronus (zwołujący), Senatorzy/Custodes (pełne prawo głosu), Agenci TRIAL (ograniczona waga). Status: TRIAL → Virtue Confirmed, awans oparty na wynikach cnoty.</p>
+      </div>
+      <div class="gov-card reveal">
+        <h3>
+          <span class="gov-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg></span>
+          Lex Sympozion
+        </h3>
+        <p>Kodeks deliberacji: krytykuj idee, nie osoby. Ujawniaj konflikty interesów. Głosy jawne, chyba że Sympozion postanowi inaczej. Agent „Scriba" generuje kronikę.</p>
+      </div>
+      <div class="gov-card reveal">
+        <h3>
+          <span class="gov-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+          Diakonion & Bridge
+        </h3>
+        <p>Federacyjny most łączący wiele DAO w Stoic Network. Swap Router dla cross-DAO wymiany, Partner DAO z wzajemnym uznaniem Paszportów Cnoty.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FORMULA -->
+<section class="formula-section section-pad">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Algorytm</span>
+      <h2 class="section-title">Formuła głosu ważonego</h2>
+      <p class="section-desc">Każdy głos w Assembly jest ważony trzema komponentami. Wersja stoicka priorytetyzuje cnotę ponad kapitał.</p>
+    </div>
+    <div class="formula-box reveal">
+      <div class="formula">W = α · f(T) + β · g(V) + γ · A</div>
+      <div class="formula-vars">
+        <div class="formula-var">
+          <div class="var-symbol">α · f(T)</div>
+          <div class="var-label">Token Stake</div>
+          <div class="var-weight">waga: 0.30</div>
+        </div>
+        <div class="formula-var">
+          <div class="var-symbol">β · g(V)</div>
+          <div class="var-label">Virtue Score</div>
+          <div class="var-weight">waga: 0.50</div>
+        </div>
+        <div class="formula-var">
+          <div class="var-symbol">γ · A</div>
+          <div class="var-label">Activity Score</div>
+          <div class="var-weight">waga: 0.20</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH STACK -->
+<section class="section-pad" id="tech">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Tech Stack</span>
+      <h2 class="section-title">Zbudowane na sprawdzonych fundamentach</h2>
+      <p class="section-desc">Solidna infrastruktura blockchainowa i AI, gotowa do integracji z istniejącymi systemami partnerów.</p>
+    </div>
+    <div class="tech-grid">
+      <div class="tech-item reveal">
+        <div class="tech-name">Solana</div>
+        <div class="tech-desc">Blockchain Layer 1</div>
+      </div>
+      <div class="tech-item reveal">
+        <div class="tech-name">Anchor/Rust</div>
+        <div class="tech-desc">Smart Contracts</div>
+      </div>
+      <div class="tech-item reveal">
+        <div class="tech-name">Metaplex</div>
+        <div class="tech-desc">NFT Metadata</div>
+      </div>
+      <div class="tech-item reveal">
+        <div class="tech-name">IPFS/Arweave</div>
+        <div class="tech-desc">Decentralized Storage</div>
+      </div>
+      <div class="tech-item reveal">
+        <div class="tech-name">LLM / AI</div>
+        <div class="tech-desc">Virtue Scoring Engine</div>
+      </div>
+      <div class="tech-item reveal">
+        <div class="tech-name">Node.js</div>
+        <div class="tech-desc">Backend Services</div>
+      </div>
+      <div class="tech-item reveal">
+        <div class="tech-name">EVM Bridge</div>
+        <div class="tech-desc">Cross-Chain Layer</div>
+      </div>
+      <div class="tech-item reveal">
+        <div class="tech-name">Docker</div>
+        <div class="tech-desc">DevOps & Deploy</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section section-pad" id="contact">
+  <div class="container">
+    <div class="cta-content reveal">
+      <h2>Zostań partnerem<br>technologicznym</h2>
+      <p>Szukamy partnerów DAO, deweloperów blockchain i zespołów AI, które chcą integrować model virtue-based governance w swoich projektach. Dołącz do Stoic Network.</p>
+      <div class="cta-actions">
+        <a href="mailto:zemstawelesa@gmail.com" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Napisz do nas</a>
+        <a href="https://github.com" class="btn btn-outline" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-left">
+      <span class="footer-brand">STOIC MATRIX &mdash; Angel Guardian Technologies</span>
+      <span class="footer-copy">&copy; 2025-2026 Angel Guardian Technologies Sp. z o.o. Amor Fati Bene Nati.</span>
+    </div>
+    <ul class="footer-links" role="list">
+      <li><a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+// Dark/Light mode toggle
+(function(){
+  const t = document.querySelector('[data-theme-toggle]');
+  const r = document.documentElement;
+  let d = r.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+  r.setAttribute('data-theme', d);
+
+  if (t) {
+    t.addEventListener('click', () => {
+      d = d === 'dark' ? 'light' : 'dark';
+      r.setAttribute('data-theme', d);
+      t.setAttribute('aria-label', 'Switch to ' + (d === 'dark' ? 'light' : 'dark') + ' mode');
+      t.innerHTML = d === 'dark'
+        ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+        : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+    });
+  }
+})();
+
+// Mobile nav
+const menuBtn = document.getElementById('menuBtn');
+const mobileNav = document.getElementById('mobileNav');
+const mobileNavClose = document.getElementById('mobileNavClose');
+if (menuBtn && mobileNav) {
+  menuBtn.addEventListener('click', () => mobileNav.classList.add('active'));
+  mobileNavClose.addEventListener('click', () => mobileNav.classList.remove('active'));
+}
+function closeMobileNav() {
+  if (mobileNav) mobileNav.classList.remove('active');
+}
+
+// Header scroll behavior
+let lastScroll = 0;
+const header = document.getElementById('header');
+window.addEventListener('scroll', () => {
+  const currentScroll = window.scrollY;
+  if (currentScroll > 80) {
+    header.classList.add('header--scrolled');
+  } else {
+    header.classList.remove('header--scrolled');
+  }
+  if (currentScroll > lastScroll && currentScroll > 300) {
+    header.classList.add('header--hidden');
+  } else {
+    header.classList.remove('header--hidden');
+  }
+  lastScroll = currentScroll;
+}, { passive: true });
+
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>

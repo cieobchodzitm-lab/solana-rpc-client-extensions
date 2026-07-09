@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# HSA outputs (per-run artifacts, never committed)
+hsa_assessments/
+exports/
+
+# Secrets
+.env
+.env.local
+*.pem
+*-gcs-key.json
+gcs-key.json
+
+# Docker
+.docker/
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,73 @@
+{
+  "name": "Stoic Matrix — Psyche [Bene Nati]",
+  "symbol": "SMAFBN",
+  "description": "Layer of Consciousness — All-Seeing Eye symbolizing system perception and intelligence. Psyche is the cognitive layer: analysis, pattern recognition, algorithmic intuition. | Nobly Born — platinum medallion with cosmic iridescence and diamonds. The highest degree of virtue. | Stoic Matrix Collection — Amor Fati Bene Nati.",
+  "seller_fee_basis_points": 500,
+  "image": "https://arweave.net/<UPLOAD_HASH>/nft-psyche-benenati.png",
+  "external_url": "https://stoicmatrix.io",
+  "attributes": [
+    {
+      "trait_type": "Layer",
+      "value": "Psyche"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Bene Nati"
+    },
+    {
+      "trait_type": "Rank",
+      "value": 4
+    },
+    {
+      "trait_type": "Material",
+      "value": "Platyna kosmiczna z diamentami / Cosmic Platinum with Diamonds"
+    },
+    {
+      "trait_type": "Symbol",
+      "value": "Wszechwidzące Oko / All-Seeing Eye"
+    },
+    {
+      "trait_type": "Element",
+      "value": "Powietrze / Air"
+    },
+    {
+      "trait_type": "Matrix Layers",
+      "value": "L1-L4"
+    },
+    {
+      "trait_type": "CNOTA Bonus",
+      "value": 2000
+    },
+    {
+      "trait_type": "Governance Weight",
+      "value": 5.0
+    },
+    {
+      "trait_type": "Max Supply",
+      "value": 125
+    },
+    {
+      "trait_type": "Collection",
+      "value": "Amor Fati Bene Nati"
+    }
+  ],
+  "properties": {
+    "files": [
+      {
+        "uri": "https://arweave.net/<UPLOAD_HASH>/nft-psyche-benenati.png",
+        "type": "image/png"
+      }
+    ],
+    "category": "image",
+    "creators": [
+      {
+        "address": "STOIC_MATRIX_CREATOR_WALLET",
+        "share": 100
+      }
+    ]
+  },
+  "collection": {
+    "name": "Stoic Matrix — Amor Fati Bene Nati",
+    "family": "Stoic Matrix"
+  }
+}

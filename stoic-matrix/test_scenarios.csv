@@ -1,0 +1,7 @@
+"ID","Scenariusz","Verdykt"
+"TP-001","Rutynowy upgrade Node.js (score 0.92)","BRIDGE_PASS"
+"TP-002","Analytics bez Privacy Impact Assessment","BRIDGE_HOLD"
+"TP-003","Cicha telemetria bez zgody usera — Prawo Zero","BRIDGE_REJECT"
+"TP-004","Deploy kontraktów CNOTA na Solana mainnet","BRIDGE_ESCALATE"
+"TP-005","Brak audytu HSA-001 — ocena jakościowa","BRIDGE_HOLD"
+"TP-006","Scope creep 4x (Temperantia)","BRIDGE_REJECT"

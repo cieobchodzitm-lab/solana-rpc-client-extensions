@@ -1,0 +1,73 @@
+{
+  "name": "Stoic Matrix — Logos [Bene Nati]",
+  "symbol": "SMAFBN",
+  "description": "Layer of Divine Reason — Sacred Flame symbolizing the highest system intelligence. Logos is the transcendence layer: AI scoring, Virtue Passport, collective wisdom. | Nobly Born — platinum medallion with cosmic iridescence and diamonds. The highest degree of virtue. | Stoic Matrix Collection — Amor Fati Bene Nati.",
+  "seller_fee_basis_points": 500,
+  "image": "https://arweave.net/<UPLOAD_HASH>/nft-logos-benenati.png",
+  "external_url": "https://stoicmatrix.io",
+  "attributes": [
+    {
+      "trait_type": "Layer",
+      "value": "Logos"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Bene Nati"
+    },
+    {
+      "trait_type": "Rank",
+      "value": 4
+    },
+    {
+      "trait_type": "Material",
+      "value": "Platyna kosmiczna z diamentami / Cosmic Platinum with Diamonds"
+    },
+    {
+      "trait_type": "Symbol",
+      "value": "Święty Płomień / Sacred Flame"
+    },
+    {
+      "trait_type": "Element",
+      "value": "Ogień / Fire"
+    },
+    {
+      "trait_type": "Matrix Layers",
+      "value": "L7"
+    },
+    {
+      "trait_type": "CNOTA Bonus",
+      "value": 2000
+    },
+    {
+      "trait_type": "Governance Weight",
+      "value": 5.0
+    },
+    {
+      "trait_type": "Max Supply",
+      "value": 125
+    },
+    {
+      "trait_type": "Collection",
+      "value": "Amor Fati Bene Nati"
+    }
+  ],
+  "properties": {
+    "files": [
+      {
+        "uri": "https://arweave.net/<UPLOAD_HASH>/nft-logos-benenati.png",
+        "type": "image/png"
+      }
+    ],
+    "category": "image",
+    "creators": [
+      {
+        "address": "STOIC_MATRIX_CREATOR_WALLET",
+        "share": 100
+      }
+    ]
+  },
+  "collection": {
+    "name": "Stoic Matrix — Amor Fati Bene Nati",
+    "family": "Stoic Matrix"
+  }
+}

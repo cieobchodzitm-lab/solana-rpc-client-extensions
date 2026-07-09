@@ -1,0 +1,61 @@
+{
+  "total_supply": 10000,
+  "total_revenue_sol": 22000.0,
+  "royalty_pct": "5%",
+  "tiers": [
+    {
+      "tier": "Trial",
+      "supply": 5000,
+      "pct": "50%",
+      "price_sol": 0.5,
+      "revenue_sol": 2500.0,
+      "cnota_bonus": 100,
+      "governance_weight": "1.0x",
+      "per_layer": 1250
+    },
+    {
+      "tier": "Sage",
+      "supply": 3000,
+      "pct": "30%",
+      "price_sol": 1.5,
+      "revenue_sol": 4500.0,
+      "cnota_bonus": 300,
+      "governance_weight": "1.5x",
+      "per_layer": 750
+    },
+    {
+      "tier": "Oracle",
+      "supply": 1500,
+      "pct": "15%",
+      "price_sol": 5.0,
+      "revenue_sol": 7500.0,
+      "cnota_bonus": 750,
+      "governance_weight": "2.5x",
+      "per_layer": 375
+    },
+    {
+      "tier": "Bene Nati",
+      "supply": 500,
+      "pct": "5%",
+      "price_sol": 15.0,
+      "revenue_sol": 7500.0,
+      "cnota_bonus": 2000,
+      "governance_weight": "5.0x",
+      "per_layer": 125
+    }
+  ],
+  "revenue_allocation": {
+    "development": "40% — Rozwój ekosystemu Stoic Matrix",
+    "community_treasury": "25% — Skarbiec społeczności (DAO)",
+    "team": "20% — Zespół Angel Guardian Technologies",
+    "marketing": "10% — Marketing i partnerstwa",
+    "reserve": "5% — Rezerwa na airdrops i nagrody"
+  },
+  "utility": [
+    "Bonus CNOTA przy mintingu (100–2000 tokenów)",
+    "Mnożnik wagi głosu w Assembly DAO (1x–5x)",
+    "Dostęp do ekskluzywnego Sympozjonu",
+    "Dynamiczny Virtue Passport — NFT ewoluuje z aktywnością",
+    "Priorytetowy dostęp do przyszłych dropów i funkcji"
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "name": "Stoic Matrix — Nomos [Bene Nati]",
+  "symbol": "SMAFBN",
+  "description": "Layer of Law — Scales of Justice symbolizing ecosystem governance and regulation. Nomos is the layer of order: smart contracts, DAO, voting rules. | Nobly Born — platinum medallion with cosmic iridescence and diamonds. The highest degree of virtue. | Stoic Matrix Collection — Amor Fati Bene Nati.",
+  "seller_fee_basis_points": 500,
+  "image": "https://arweave.net/<UPLOAD_HASH>/nft-nomos-benenati.png",
+  "external_url": "https://stoicmatrix.io",
+  "attributes": [
+    {
+      "trait_type": "Layer",
+      "value": "Nomos"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Bene Nati"
+    },
+    {
+      "trait_type": "Rank",
+      "value": 4
+    },
+    {
+      "trait_type": "Material",
+      "value": "Platyna kosmiczna z diamentami / Cosmic Platinum with Diamonds"
+    },
+    {
+      "trait_type": "Symbol",
+      "value": "Waga Sprawiedliwości / Scales of Justice"
+    },
+    {
+      "trait_type": "Element",
+      "value": "Woda / Water"
+    },
+    {
+      "trait_type": "Matrix Layers",
+      "value": "L5-L6"
+    },
+    {
+      "trait_type": "CNOTA Bonus",
+      "value": 2000
+    },
+    {
+      "trait_type": "Governance Weight",
+      "value": 5.0
+    },
+    {
+      "trait_type": "Max Supply",
+      "value": 125
+    },
+    {
+      "trait_type": "Collection",
+      "value": "Amor Fati Bene Nati"
+    }
+  ],
+  "properties": {
+    "files": [
+      {
+        "uri": "https://arweave.net/<UPLOAD_HASH>/nft-nomos-benenati.png",
+        "type": "image/png"
+      }
+    ],
+    "category": "image",
+    "creators": [
+      {
+        "address": "STOIC_MATRIX_CREATOR_WALLET",
+        "share": 100
+      }
+    ]
+  },
+  "collection": {
+    "name": "Stoic Matrix — Amor Fati Bene Nati",
+    "family": "Stoic Matrix"
+  }
+}

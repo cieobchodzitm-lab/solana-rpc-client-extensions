@@ -1,0 +1,429 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# stoic-matrix — GitLab CI/CD
+# Angel Guardian Technologies / cieobchodzitm-lab
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# HSA-001 Risk Flags addressed:
+#   RF-001 ✅ — Complete config (all 4 cache slots: Rust/Node/Python/Next.js)
+#   RF-002 ✅ — SCCACHE_GCS_CREDENTIALS documented (see docs/sccache_gcs_setup.md)
+#   RF-003 ✅ — Runner backend requirements documented in comments
+#   RF-004 ✅ — CARGO_INCREMENTAL=0 set globally (required by sccache)
+#
+# GitLab version requirement: 18.10+ (for multi-level cache fallback keys)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ── Global variables ──────────────────────────────────────────────────────────
+variables:
+
+  # ── RF-004 FIX: CARGO_INCREMENTAL must be 0 when using sccache ────────────
+  # sccache intercepts rustc calls; incremental compilation writes per-crate
+  # artifacts that conflict with sccache's own caching layer.
+  # See: https://github.com/mozilla/sccache#known-caveats
+  CARGO_INCREMENTAL: "0"
+
+  # ── Rust / sccache ──────────────────────────────────────────────────────────
+  RUSTUP_HOME: "$CI_PROJECT_DIR/.rustup"
+  CARGO_HOME: "$CI_PROJECT_DIR/.cargo"
+  SCCACHE_DIR: "$CI_PROJECT_DIR/.sccache"
+
+  # sccache GCS backend — bucket name (credentials via CI/CD secret, RF-002)
+  # Set SCCACHE_GCS_BUCKET in GitLab → Settings → CI/CD → Variables
+  SCCACHE_GCS_BUCKET: "${SCCACHE_GCS_BUCKET}"           # injected from CI secret
+  SCCACHE_GCS_RW_MODE: "READ_WRITE"
+  SCCACHE_GCS_CREDENTIALS: "${SCCACHE_GCS_CREDENTIALS}" # injected from CI secret (JSON key)
+
+  # sccache binary path (installed in before_script)
+  SCCACHE_BIN: "$CI_PROJECT_DIR/.cargo/bin/sccache"
+  RUSTC_WRAPPER: ""   # overridden per-job after sccache install
+
+  # ── Node / pnpm ─────────────────────────────────────────────────────────────
+  PNPM_HOME: "$CI_PROJECT_DIR/.pnpm-store"
+  NODE_VERSION: "20"
+
+  # ── Python ──────────────────────────────────────────────────────────────────
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip-cache"
+  PYTHONDONTWRITEBYTECODE: "1"
+
+  # ── Next.js ─────────────────────────────────────────────────────────────────
+  NEXT_TELEMETRY_DISABLED: "1"
+  NEXT_CACHE_DIR: "$CI_PROJECT_DIR/frontend/.next/cache"
+
+  # ── FastZip (GitLab 18.10+, ~4x speedup) ────────────────────────────────────
+  FF_USE_FASTZIP: "true"
+  ARTIFACT_COMPRESSION_LEVEL: "fast"
+  CACHE_COMPRESSION_LEVEL: "fast"
+
+  # ── Protected branch cache key suffix ───────────────────────────────────────
+  # Prevents polluting protected branch caches from feature branches.
+  # In practice: main/dev get their own namespace.
+  CACHE_KEY_SUFFIX: $CI_COMMIT_REF_PROTECTED
+
+# ── Default settings ──────────────────────────────────────────────────────────
+default:
+  image: ubuntu:24.04
+  interruptible: true
+  timeout: 30 minutes
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq git curl build-essential pkg-config
+
+# ── Stages ────────────────────────────────────────────────────────────────────
+stages:
+  - validate
+  - build
+  - test
+  - audit
+  - deploy
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CACHE TEMPLATES — 4 slots: Rust | Node | Python | Next.js
+# policy: pull-push (default, for build jobs)
+# policy: pull        (for test/lint jobs — RF-001 originally missing)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+.cache-rust: &cache-rust
+  cache:
+    - key:
+        prefix: "rust-${CI_COMMIT_REF_SLUG}-${CACHE_KEY_SUFFIX}"
+        files:
+          - Cargo.lock
+      paths:
+        - .cargo/registry/index/
+        - .cargo/registry/cache/
+        - .cargo/git/db/
+        - target/
+        - .sccache/
+      # Multi-level fallback (GitLab 18.10+):
+      # If branch key misses → fall back to main branch cache
+      fallback_keys:
+        - "rust-main-true"
+        - "rust-main-false"
+
+.cache-node: &cache-node
+  cache:
+    - key:
+        prefix: "node-${CI_COMMIT_REF_SLUG}-${CACHE_KEY_SUFFIX}"
+        files:
+          - pnpm-lock.yaml
+      paths:
+        - .pnpm-store/
+        - node_modules/
+      fallback_keys:
+        - "node-main-true"
+        - "node-main-false"
+
+.cache-python: &cache-python
+  cache:
+    - key:
+        prefix: "python-${CI_COMMIT_REF_SLUG}-${CACHE_KEY_SUFFIX}"
+        files:
+          - requirements.txt
+      paths:
+        - .pip-cache/
+        - .venv/
+      fallback_keys:
+        - "python-main-true"
+        - "python-main-false"
+
+.cache-nextjs: &cache-nextjs
+  cache:
+    - key:
+        prefix: "nextjs-${CI_COMMIT_REF_SLUG}-${CACHE_KEY_SUFFIX}"
+        files:
+          - frontend/pnpm-lock.yaml
+      paths:
+        - frontend/.next/cache/
+        - frontend/node_modules/
+      fallback_keys:
+        - "nextjs-main-true"
+        - "nextjs-main-false"
+
+# ── Pull-only variant for test/lint jobs (saves 30-60s per job) ──────────────
+.cache-rust-pull: &cache-rust-pull
+  cache:
+    - <<: *cache-rust
+      policy: pull
+
+.cache-node-pull: &cache-node-pull
+  cache:
+    - <<: *cache-node
+      policy: pull
+
+.cache-python-pull: &cache-python-pull
+  cache:
+    - <<: *cache-python
+      policy: pull
+
+.cache-nextjs-pull: &cache-nextjs-pull
+  cache:
+    - <<: *cache-nextjs
+      policy: pull
+
+# ── sccache setup helper ─────────────────────────────────────────────────────
+# RF-004: RUSTC_WRAPPER overridden here, CARGO_INCREMENTAL=0 is global
+.sccache-setup: &sccache-setup
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq git curl build-essential pkg-config
+    - |
+      # Install sccache if not cached
+      if [ ! -f "$SCCACHE_BIN" ]; then
+        echo "Installing sccache..."
+        curl -sL https://github.com/mozilla/sccache/releases/download/v0.8.1/sccache-v0.8.1-x86_64-unknown-linux-musl.tar.gz \
+          | tar xz --strip-components=1 -C /usr/local/bin/ \
+            sccache-v0.8.1-x86_64-unknown-linux-musl/sccache
+      fi
+    - sccache --version
+    # RF-004: export RUSTC_WRAPPER only after sccache is confirmed available
+    - export RUSTC_WRAPPER=$(which sccache)
+    # Write GCS credentials to temp file (RF-002)
+    - |
+      if [ -n "$SCCACHE_GCS_CREDENTIALS" ]; then
+        echo "$SCCACHE_GCS_CREDENTIALS" > /tmp/sccache-gcs-key.json
+        export SCCACHE_GCS_KEY_PATH=/tmp/sccache-gcs-key.json
+      fi
+    - sccache --start-server || true
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STAGE: validate
+# ═══════════════════════════════════════════════════════════════════════════════
+
+validate:lint-python:
+  stage: validate
+  image: python:3.11-slim
+  <<: *cache-python-pull
+  script:
+    - pip install --cache-dir "$PIP_CACHE_DIR" ruff mypy --quiet
+    - ruff check . --select=E,W,F,I
+    - mypy hsa_agent.py l7_memory_exporter.py --ignore-missing-imports
+  rules:
+    - changes:
+        - "*.py"
+        - requirements.txt
+
+validate:lint-rust:
+  stage: validate
+  image: rust:1.78-slim
+  <<: *cache-rust-pull
+  script:
+    - cargo fmt --check
+    - cargo clippy -- -D warnings
+  rules:
+    - changes:
+        - "**/*.rs"
+        - Cargo.toml
+        - Cargo.lock
+
+validate:lint-node:
+  stage: validate
+  image: node:20-slim
+  <<: *cache-node-pull
+  before_script:
+    - npm install -g pnpm --quiet
+  script:
+    - pnpm install --frozen-lockfile --store-dir "$PNPM_HOME"
+    - pnpm run lint
+  rules:
+    - changes:
+        - "**/*.ts"
+        - "**/*.tsx"
+        - pnpm-lock.yaml
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STAGE: build
+# ═══════════════════════════════════════════════════════════════════════════════
+
+build:rust:
+  stage: build
+  image: rust:1.78-slim
+  <<: *sccache-setup
+  <<: *cache-rust
+  script:
+    - cargo build --release
+    - sccache --show-stats
+  artifacts:
+    paths:
+      - target/release/
+    expire_in: 1 week
+
+build:python:
+  stage: build
+  image: python:3.11-slim
+  <<: *cache-python
+  script:
+    - python -m venv .venv
+    - .venv/bin/pip install --cache-dir "$PIP_CACHE_DIR" -r requirements.txt --quiet
+    - .venv/bin/python -m py_compile hsa_agent.py l7_memory_exporter.py
+  artifacts:
+    paths:
+      - .venv/
+    expire_in: 1 day
+
+build:frontend:
+  stage: build
+  image: node:20-slim
+  <<: *cache-nextjs
+  before_script:
+    - npm install -g pnpm --quiet
+  script:
+    - cd frontend
+    - pnpm install --frozen-lockfile --store-dir "$CI_PROJECT_DIR/$PNPM_HOME"
+    - pnpm run build
+  artifacts:
+    paths:
+      - frontend/.next/
+      - frontend/public/
+    expire_in: 1 week
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STAGE: test
+# ═══════════════════════════════════════════════════════════════════════════════
+
+test:python-unit:
+  stage: test
+  image: python:3.11-slim
+  needs: [build:python]
+  <<: *cache-python-pull
+  script:
+    - .venv/bin/pytest tests/ -v --tb=short --no-header
+  coverage: '/TOTAL.*\s+(\d+%)$/'
+  artifacts:
+    reports:
+      junit: reports/pytest.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: reports/coverage.xml
+
+test:rust-unit:
+  stage: test
+  image: rust:1.78-slim
+  needs: [build:rust]
+  <<: *cache-rust-pull
+  script:
+    - cargo test --release 2>&1 | tee test-results.txt
+  artifacts:
+    reports:
+      junit: reports/cargo-test.xml
+
+test:frontend-unit:
+  stage: test
+  image: node:20-slim
+  needs: [build:frontend]
+  <<: *cache-nextjs-pull
+  before_script:
+    - npm install -g pnpm --quiet
+  script:
+    - cd frontend
+    - pnpm run test --reporter=junit --outputFile=../reports/frontend-test.xml
+  artifacts:
+    reports:
+      junit: reports/frontend-test.xml
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STAGE: audit (HSA-001)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+audit:hsa-001:
+  stage: audit
+  image: python:3.11-slim
+  needs: [test:python-unit]
+  <<: *cache-python-pull
+  variables:
+    GEMINI_API_KEY: $GEMINI_API_KEY       # GitLab CI/CD secret
+    AGENTOPS_API_KEY: $AGENTOPS_API_KEY   # GitLab CI/CD secret (optional)
+  before_script:
+    - pip install google-genai agentops --quiet
+  script:
+    - mkdir -p hsa_assessments
+    # Restore previous result for delta computation (RF → tracked artifact)
+    - |
+      if [ -f "hsa_assessments/result.json" ]; then
+        cp hsa_assessments/result.json hsa_assessments/previous_result.json
+      fi
+    - |
+      python hsa_agent.py \
+        --agent-id "GitLab-${CI_PIPELINE_ID}" \
+        --file "${CI_PROJECT_DIR}/.git/COMMIT_EDITMSG" \
+        --previous-json hsa_assessments/previous_result.json \
+        --output-json hsa_assessments/result.json
+  artifacts:
+    paths:
+      - hsa_assessments/result.json
+    expire_in: 90 days
+    reports:
+      # Expose as GitLab annotation (visible in MR)
+      dotenv: hsa_assessments/hsa.env
+  allow_failure: false
+
+# ── Expose HSA result as MR note ─────────────────────────────────────────────
+audit:hsa-comment:
+  stage: audit
+  image: alpine:latest
+  needs: [audit:hsa-001]
+  rules:
+    - if: '$CI_MERGE_REQUEST_IID'
+  before_script:
+    - apk add --no-cache curl jq --quiet
+  script:
+    - |
+      TIER=$(jq -r '.tier' hsa_assessments/result.json)
+      SCORE=$(jq -r '.overall_score' hsa_assessments/result.json)
+      TREND=$(jq -r '.trend' hsa_assessments/result.json)
+      BRIDGE=$(jq -r '.bridge_compliant' hsa_assessments/result.json)
+      APPROVAL=$(jq -r '.requires_human_approval' hsa_assessments/result.json)
+      FEEDBACK=$(jq -r '.stoic_feedback' hsa_assessments/result.json)
+      TIER_EMOJI=""
+      case $TIER in
+        PLATINUM) TIER_EMOJI="💎" ;;
+        GOLD)     TIER_EMOJI="🥇" ;;
+        SILVER)   TIER_EMOJI="🥈" ;;
+        BRONZE)   TIER_EMOJI="🥉" ;;
+        FAILED)   TIER_EMOJI="❌" ;;
+      esac
+      BODY="## 🛡️ HSA-001 Virtue Audit — Pipeline #${CI_PIPELINE_ID}
+
+      | Parametr | Wartość |
+      |----------|---------|
+      | Tier | ${TIER_EMOJI} \`${TIER}\` |
+      | Score | **${SCORE}/10** |
+      | Trend | ${TREND} |
+      | Bridge Compliant | ${BRIDGE} |
+      | Requires Approval | ${APPROVAL} |
+
+      > 📜 *${FEEDBACK}*"
+
+      curl --silent --request POST \
+        --header "PRIVATE-TOKEN: ${GITLAB_API_TOKEN}" \
+        --header "Content-Type: application/json" \
+        --data "{\"body\": $(echo "$BODY" | jq -Rs .)}" \
+        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${CI_MERGE_REQUEST_IID}/notes"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STAGE: deploy
+# ═══════════════════════════════════════════════════════════════════════════════
+
+deploy:hf-space:
+  stage: deploy
+  image: python:3.11-slim
+  needs: [audit:hsa-001, build:frontend]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: on_success
+  before_script:
+    - pip install huggingface_hub --quiet
+  script:
+    - |
+      python - <<'PYEOF'
+      from huggingface_hub import HfApi
+      import os
+      api = HfApi(token=os.environ["HF_TOKEN"])
+      api.upload_folder(
+          folder_path=".",
+          repo_id="cieobchodzitm/l7-cnota-dashboard",
+          repo_type="space",
+          ignore_patterns=["*.pyc", ".git*", "target/", ".venv/", "hsa_assessments/"],
+          commit_message=f"deploy: pipeline {os.environ['CI_PIPELINE_ID']}",
+      )
+      print("✅ HF Space updated")
+      PYEOF
+  environment:
+    name: production
+    url: https://huggingface.co/spaces/cieobchodzitm/l7-cnota-dashboard
