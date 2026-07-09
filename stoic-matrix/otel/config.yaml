@@ -1,0 +1,83 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# OpenTelemetry Collector — stoic-matrix
+# Angel Guardian Technologies / cieobchodzitm-lab
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Receives OTLP from hf-space (via OTEL_EXPORTER_OTLP_ENDPOINT) on 4317/4318,
+# exposes a scrape endpoint on :8889 for a local Prometheus, and mirrors
+# everything to the debug exporter so `docker compose logs otel-collector`
+# is a live tail of what's coming in.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+  # Scrape the collector's own internal metrics
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'otel-collector'
+          scrape_interval: 30s
+          static_configs:
+            - targets: ['0.0.0.0:8888']
+
+processors:
+  batch:
+    timeout: 5s
+    send_batch_size: 512
+
+  # Enrich every span/metric/log with service tags
+  resource:
+    attributes:
+      - key: deployment.environment
+        value: "docker-compose"
+        action: upsert
+      - key: service.namespace
+        value: "stoic-matrix"
+        action: upsert
+
+  memory_limiter:
+    check_interval: 5s
+    limit_mib: 256
+    spike_limit_mib: 64
+
+exporters:
+  # Prometheus scrape endpoint — expose forwarded metrics on :8889
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    namespace: stoic_matrix
+    send_timestamps: true
+
+  # Human-readable dump into container stdout (for `docker compose logs`)
+  debug:
+    verbosity: normal
+    sampling_initial: 5
+    sampling_thereafter: 200
+
+service:
+  telemetry:
+    logs:
+      level: info
+    metrics:
+      address: 0.0.0.0:8888
+
+  pipelines:
+    traces:
+      receivers:  [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters:  [debug]
+
+    metrics:
+      receivers:  [otlp, prometheus]
+      processors: [memory_limiter, resource, batch]
+      exporters:  [prometheus, debug]
+
+    logs:
+      receivers:  [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters:  [debug]
